@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const Wallet = require("./Wallet");
 
 const userSchema = new mongoose.Schema({
     username: {
@@ -33,6 +34,9 @@ const userSchema = new mongoose.Schema({
         type: Boolean,
         required: true,
         default: true
+    }, 
+    wallet: {
+        type: Wallet
     }
 })
 
