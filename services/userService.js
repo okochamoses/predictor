@@ -1,8 +1,13 @@
 const userRepo = require("../repositories/userRepo");
 const logger = require("../config/logger");
 const validateRegistration = require("../validation/registration");
-const { hashPassword } = require("../utils/security");
 const { codes, ServiceResponse } = require("../vo");
+const validate = require("validator");
+const {
+  hashPassword,
+  comparePassword,
+  generateToken
+} = require("../utils/security");
 
 const register = async (req, res, next) => {
   const response = new ServiceResponse(codes.GE_CODE, codes.GE_MSG);
@@ -47,6 +52,46 @@ const register = async (req, res, next) => {
   }
 };
 
+const login = async (req, res, next) => {
+  const response = new ServiceResponse(codes.GE_CODE, codes.GE_MSG);
+  const userID = req.body.userID;
+  const password = req.body.password;
+  try {
+    let user = null;
+    if (validate.isEmail(userID)) {
+      user = await userRepo.findByEmail(userID);
+    } else {
+      user = await userRepo.findByUsername(userID);
+    }
+
+    // Check if user exists
+    if (!user) {
+      response.status = codes.GE_CODE;
+      response.description = "Invalid login credentials";
+      return res.json(response);
+    }
+
+    // Check Password
+    if (comparePassword(password, user.password)) {
+      const payload = {
+        userID: user._id,
+        username: user.username,
+        userType: user.userType
+      };
+      response.status = codes.GS_CODE;
+      response.description = codes.GS_MSG;
+      response.data = generateToken(payload);
+
+      return res.json(response);
+    }
+
+    return res.json(response);
+  } catch (err) {
+    logger.error(`Error logging user in with message: ${err.message}`);
+  }
+};
+
 module.exports = {
-  register
+  register,
+  login
 };

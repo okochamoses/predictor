@@ -1,4 +1,5 @@
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
 hashPassword = password => {
   const salt = bcrypt.genSaltSync(10);
@@ -10,4 +11,10 @@ comparePassword = (password, hash) => {
   return bcrypt.compareSync(password, hash);
 };
 
-module.exports = { hashPassword, comparePassword };
+generateToken = data => {
+  return jwt.sign(data, process.env.JWT_SECRET, {
+    expiresIn: parseInt(process.env.JWT_TOKEN_EXPIRY)
+  });
+};
+
+module.exports = { hashPassword, comparePassword, generateToken };
