@@ -3,6 +3,10 @@ const path = require("path");
 const cookieParser = require("cookie-parser");
 const morgan = require("morgan");
 const logger = require("./config/logger");
+const dotenv = require("dotenv");
+
+// Read environment variables from .env file
+dotenv.config();
 
 // Database Connection
 require("./config/db");
