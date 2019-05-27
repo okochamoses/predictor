@@ -1,9 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const userService = require("../services/userService");
 
-/* GET users listing. */
-router.get("/", function(req, res, next) {
-  res.send("respond with a resource");
-});
-
+router.get("/:id", userService.getUser);
 module.exports = router;

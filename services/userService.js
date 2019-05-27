@@ -53,7 +53,7 @@ const register = async (req, res, next) => {
 };
 
 const login = async (req, res, next) => {
-  const response = new ServiceResponse(codes.GE_CODE, codes.GE_MSG);
+  const response = new ServiceResponse(codes.AF_CODE, codes.AF_MSG);
   const userID = req.body.userID;
   const password = req.body.password;
   try {
@@ -80,18 +80,36 @@ const login = async (req, res, next) => {
       };
       response.status = codes.GS_CODE;
       response.description = codes.GS_MSG;
-      response.data = generateToken(payload);
+      response.data = { token: generateToken(payload) };
 
       return res.json(response);
     }
-
     return res.json(response);
   } catch (err) {
     logger.error(`Error logging user in with message: ${err.message}`);
+    
+    response.status = codes.GE_CODE;
+    response.description = codes.GE_MSG;
+    return res.json(response);
+  }
+};
+
+const getUser = async (req, res, next) => {
+  const id = req.params.id;
+  try {
+    const user = await userRepo.findById({ _id: id });
+    if(!user) {
+      return res.json(new ServiceResponse(codes.GE_CODE, codes.NF_MSG));
+    }
+    return res.json(new ServiceResponse(codes.GS_CODE, codes.GS_MSG, user));
+  } catch (err) {
+    logger.error(`Error getting user with id: ${id} Message: ${err}`);
+    return res.json(new ServiceResponse(codes.GE_CODE, codes.GE_MSG));
   }
 };
 
 module.exports = {
   register,
-  login
+  login,
+  getUser
 };
