@@ -58,8 +58,6 @@ opts.secretOrKey = process.env.JWT_SECRET;
 module.exports = passport.use(
   "customer",
   new JwtStrategy({jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(), secretOrKey: "incredibleMagma88"}, async (jwt_payload, done) => {
-    //   authenticate.student(jwt_payload.id, done)
-    console.log(jwt_payload)
     const userID = jwt_payload.userID
     
     const user = await userRepo.findById(userID);
@@ -69,7 +67,8 @@ module.exports = passport.use(
         id: user._id,
         username: user.username,
         firstName: user.firstName,
-        lastName: user.lastName
+        lastName: user.lastName,
+        userType: user.userType
       };
       return done(null, payload);
     }

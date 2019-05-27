@@ -4,6 +4,7 @@ const morgan = require("morgan");
 const logger = require("./config/logger");
 const dotenv = require("dotenv");
 const passport = require("./config/passport");
+const {customerGuard} = require("./config/authGuard")
 
 // Read environment variables from .env file
 dotenv.config();
@@ -19,6 +20,7 @@ const app = express();
 
 // Passport
 app.use(passport.initialize());
+const passportGuard = passport.authenticate("customer", {session: false, failureRedirect: "/api" });
 
 app.use(morgan("combined", { stream: logger.stream }));
 app.use(express.json());
@@ -27,6 +29,6 @@ app.use(cookieParser());
 
 app.use("/api", indexRouter);
 app.use("/auth", authRouter);
-app.use("/users",  passport.authenticate("customer", {session: false, failureRedirect: "/api" }), usersRouter);
+app.use("/users",  [passportGuard, customerGuard], usersRouter);
 
 module.exports = app;
