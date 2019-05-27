@@ -1,9 +1,9 @@
 const express = require("express");
-const path = require("path");
 const cookieParser = require("cookie-parser");
 const morgan = require("morgan");
 const logger = require("./config/logger");
 const dotenv = require("dotenv");
+const passport = require("./config/passport");
 
 // Read environment variables from .env file
 dotenv.config();
@@ -17,14 +17,16 @@ const authRouter = require("./routes/auth");
 
 const app = express();
 
+// Passport
+app.use(passport.initialize());
+
 app.use(morgan("combined", { stream: logger.stream }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/api", indexRouter);
 app.use("/auth", authRouter);
-app.use("/users", usersRouter);
+app.use("/users",  passport.authenticate("customer", {session: false, failureRedirect: "/api" }), usersRouter);
 
 module.exports = app;
